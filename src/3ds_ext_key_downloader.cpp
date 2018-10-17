@@ -93,10 +93,28 @@ int C3dsExtKeyDownloader::ParseOptions(int a_nArgc, UChar* a_pArgv[])
 	return 0;
 }
 
+int C3dsExtKeyDownloader::CheckOptions()
+{
+	if (m_eAction == kActionNone)
+	{
+		UPrintf(USTR("ERROR: nothing to do\n\n"));
+		return 1;
+	}
+	if (m_eAction == kActionDownload)
+	{
+		if (m_nDownloadBegin < 0 && m_nDownloadEnd < 0)
+		{
+			UPrintf(USTR("ERROR: no --download-begin or --download-end option\n\n"));
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int C3dsExtKeyDownloader::Help()
 {
 	UPrintf(USTR("3ds_ext_key_downloader %") PRIUS USTR(" by dnasdw\n\n"), AToU(_3DS_EXT_KEY_DOWNLOADER_VERSION).c_str());
-	UPrintf(USTR("usage: 3dstool [option...] [option]...\n\n"));
+	UPrintf(USTR("usage: 3ds_ext_key_downloader [option...] [option]...\n\n"));
 	UPrintf(USTR("option:\n"));
 	SOption* pOption = s_Option;
 	while (pOption->Name != nullptr || pOption->Doc != nullptr)
@@ -211,6 +229,10 @@ int UMain(int argc, UChar* argv[])
 	if (downloader.ParseOptions(argc, argv) != 0)
 	{
 		return downloader.Help();
+	}
+	if (downloader.CheckOptions() != 0)
+	{
+		return 1;
 	}
     return 0;
 }
