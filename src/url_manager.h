@@ -64,7 +64,7 @@ public:
 	CUrlManager();
 	~CUrlManager();
 	template<typename T>
-	CUrl* HttpsGet(const string& a_sUrl, T a_pMemberFunction, void* a_pUserData)
+	CUrl* HttpsGet(const string& a_sUrl, n32 a_nTimeout, T a_pMemberFunction, void* a_pUserData)
 	{
 		if (!s_bInitialized && !Initialize())
 		{
@@ -90,6 +90,10 @@ public:
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_URL, a_sUrl.c_str());
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_SSL_VERIFYPEER, 0L);
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_SSL_VERIFYHOST, 0L);
+		if (a_nTimeout > 0)
+		{
+			curl_easy_setopt(pUrl->m_pCurl, CURLOPT_TIMEOUT, a_nTimeout);
+		}
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_WRITEFUNCTION, &CUrl::OnWrite);
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_WRITEDATA, pUrl);
 		curl_multi_add_handle(pUrl->m_pCurlm, pUrl->m_pCurl);
@@ -102,7 +106,7 @@ public:
 		return pUrl;
 	}
 	template<typename T>
-	CUrl* HttpsGet(const string& a_sUrl, T& a_Obj, void (T::*a_pMemberFunction)(CUrl*, void*), void* a_pUserData)
+	CUrl* HttpsGet(const string& a_sUrl, n32 a_nTimeout, T& a_Obj, void (T::*a_pMemberFunction)(CUrl*, void*), void* a_pUserData)
 	{
 		if (!s_bInitialized && !Initialize())
 		{
@@ -128,6 +132,10 @@ public:
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_URL, a_sUrl.c_str());
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_SSL_VERIFYPEER, 0L);
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_SSL_VERIFYHOST, 0L);
+		if (a_nTimeout > 0)
+		{
+			curl_easy_setopt(pUrl->m_pCurl, CURLOPT_TIMEOUT, a_nTimeout);
+		}
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_WRITEFUNCTION, &CUrl::OnWrite);
 		curl_easy_setopt(pUrl->m_pCurl, CURLOPT_WRITEDATA, pUrl);
 		curl_multi_add_handle(pUrl->m_pCurlm, pUrl->m_pCurl);
