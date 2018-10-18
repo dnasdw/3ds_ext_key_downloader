@@ -1,5 +1,6 @@
 #include "3ds_ext_key_downloader.h"
 #include "ncch.h"
+#include "url_manager.h"
 
 C3dsExtKeyDownloader::SOption C3dsExtKeyDownloader::s_Option[] =
 {
@@ -21,10 +22,12 @@ C3dsExtKeyDownloader::C3dsExtKeyDownloader()
 	, m_nDownloadBegin(-1)
 	, m_nDownloadEnd(-1)
 {
+	CUrlManager::Initialize();
 }
 
 C3dsExtKeyDownloader::~C3dsExtKeyDownloader()
 {
+	CUrlManager::Finalize();
 }
 
 int C3dsExtKeyDownloader::ParseOptions(int a_nArgc, UChar* a_pArgv[])

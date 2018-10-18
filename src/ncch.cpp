@@ -1,4 +1,6 @@
 #include "ncch.h"
+#include "url_manager.h"
+#include <curl/curl.h>
 
 CNcch::CNcch()
 	: m_bVerbose(false)
@@ -31,6 +33,45 @@ bool CNcch::Download(bool a_bReadExtKey /* = true */)
 	if (a_bReadExtKey)
 	{
 		readExtKey();
+	}
+	CUrlManager urlManager;
+	u32 uCount = m_nDownloadEnd - m_nDownloadBegin + 1;
+	u32 uDownloadCount = 0;
+	u32 uTotalLoadCount = 0;
+	u32 uLoadCount = 0;
+	while (uDownloadCount != uCount)
+	{
+		while (uTotalLoadCount != uCount && uLoadCount < 256)
+		{
+			size_t uUserData = m_nDownloadBegin + uTotalLoadCount;
+			CUrl* pUrl = urlManager.HttpsGet(Format("https://kagiya-ctr.cdn.nintendo.net/title/0x000400000%05X00/ext_key?country=JP", m_nDownloadBegin + uTotalLoadCount), *this, &CNcch::onHttpsGetExtKey, reinterpret_cast<void*>(uUserData));
+			if (pUrl == nullptr)
+			{
+				urlManager.Cleanup();
+				return false;
+			}
+			uTotalLoadCount++;
+			uLoadCount++;
+		}
+		while (urlManager.GetCount() != 0)
+		{
+			u32 uCount0 = urlManager.GetCount();
+			urlManager.Perform();
+			u32 uCount1 = urlManager.GetCount();
+			if (uCount1 != uCount0)
+			{
+				uDownloadCount += uCount0 - uCount1;
+				uLoadCount -= uCount0 - uCount1;
+				if (m_bVerbose)
+				{
+					UPrintf(USTR("download: %u/%u/%u\n"), uDownloadCount, uTotalLoadCount, uCount);
+				}
+				if (uTotalLoadCount != uCount)
+				{
+					break;
+				}
+			}
+		}
 	}
 	return writeExtKey();
 }
@@ -86,5 +127,29 @@ bool CNcch::writeExtKey()
 		fprintf(fp, "%s %s\r\n", it->first.c_str(), it->second.c_str());
 	}
 	fclose(fp);
-	return false;
+	return true;
+}
+
+void CNcch::onHttpsGetExtKey(CUrl* a_pUrl, void* a_pUserData)
+{
+	size_t uUserData = reinterpret_cast<size_t>(a_pUserData);
+	u32 uUniqueId = static_cast<u32>(uUserData);
+	if (a_pUrl != nullptr)
+	{
+		const string& sData = a_pUrl->GetData();
+		if (!sData.empty())
+		{
+			string sExtKey;
+			for (int i = 0; i < static_cast<int>(sData.size()); i++)
+			{
+				sExtKey += Format("%02X", static_cast<u8>(sData[i]));
+			}
+			string sProgramId = Format("000400000%05X00", uUniqueId);
+			m_mExtKey.insert(make_pair(sProgramId, sExtKey));
+			if (m_bVerbose)
+			{
+				UPrintf(USTR("download: %") PRIUS USTR(" %") PRIUS USTR("\n"), AToU(sProgramId).c_str(), AToU(sExtKey).c_str());
+			}
+		}
+	}
 }

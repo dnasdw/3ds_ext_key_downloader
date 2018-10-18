@@ -3,6 +3,8 @@
 
 #include <sdw.h>
 
+class CUrl;
+
 class CNcch
 {
 public:
@@ -15,6 +17,7 @@ public:
 private:
 	void readExtKey();
 	bool writeExtKey();
+	void onHttpsGetExtKey(CUrl* a_pUrl, void* a_pUserData);
 	bool m_bVerbose;
 	n32 m_nDownloadBegin;
 	n32 m_nDownloadEnd;
