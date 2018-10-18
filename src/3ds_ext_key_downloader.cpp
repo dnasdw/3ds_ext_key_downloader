@@ -1,4 +1,5 @@
 #include "3ds_ext_key_downloader.h"
+#include "ncch.h"
 
 C3dsExtKeyDownloader::SOption C3dsExtKeyDownloader::s_Option[] =
 {
@@ -146,6 +147,27 @@ int C3dsExtKeyDownloader::Help()
 	return 0;
 }
 
+int C3dsExtKeyDownloader::Action()
+{
+	if (m_eAction == kActionDownload)
+	{
+		if (!download())
+		{
+			UPrintf(USTR("ERROR: download failed\n\n"));
+			return 1;
+		}
+	}
+	if (m_eAction == kActionSample)
+	{
+		return sample();
+	}
+	if (m_eAction == kActionHelp)
+	{
+		return Help();
+	}
+	return 0;
+}
+
 C3dsExtKeyDownloader::EParseOptionReturn C3dsExtKeyDownloader::parseOptions(const UChar* a_pName, int& a_nIndex, int a_nArgc, UChar* a_pArgv[])
 {
 	if (UCscmp(a_pName, USTR("download")) == 0)
@@ -223,6 +245,34 @@ C3dsExtKeyDownloader::EParseOptionReturn C3dsExtKeyDownloader::parseOptions(int 
 	return kParseOptionReturnIllegalOption;
 }
 
+
+bool C3dsExtKeyDownloader::download()
+{
+	if (m_nDownloadBegin > m_nDownloadEnd)
+	{
+		n32 nTemp = m_nDownloadBegin;
+		m_nDownloadBegin = m_nDownloadEnd;
+		m_nDownloadEnd = nTemp;
+	}
+	if (m_nDownloadBegin < 0)
+	{
+		m_nDownloadBegin = m_nDownloadEnd;
+	}
+	CNcch ncch;
+	ncch.SetVerbose(m_bVerbose);
+	ncch.SetDownloadBegin(m_nDownloadBegin);
+	ncch.SetDownloadEnd(m_nDownloadEnd);
+	return ncch.Download();
+}
+
+int C3dsExtKeyDownloader::sample()
+{
+	UPrintf(USTR("sample:\n"));
+	UPrintf(USTR("# download ext key\n"));
+	UPrintf(USTR("3ds_ext_key_downloader -dv --download-begin 00000 --download-end 02FFF\n\n"));
+	return 0;
+}
+
 int UMain(int argc, UChar* argv[])
 {
 	C3dsExtKeyDownloader downloader;
@@ -234,5 +284,5 @@ int UMain(int argc, UChar* argv[])
 	{
 		return 1;
 	}
-    return 0;
+	return downloader.Action();
 }
