@@ -44,7 +44,7 @@ bool CNcch::Download(bool a_bReadExtKey /* = true */)
 		while (uTotalLoadCount != uCount && uLoadCount < 256)
 		{
 			size_t uUserData = m_nDownloadBegin + uTotalLoadCount;
-			CUrl* pUrl = urlManager.HttpsGet(Format("https://kagiya-ctr.cdn.nintendo.net/title/0x000400000%05X00/ext_key?country=JP", m_nDownloadBegin + uTotalLoadCount), 20, *this, &CNcch::onHttpsGetExtKey, reinterpret_cast<void*>(uUserData));
+			CUrl* pUrl = urlManager.HttpsGet(Format("https://kagiya-ctr.cdn.nintendo.net/title/0x000400000%05X00/ext_key?country=JP", m_nDownloadBegin + uTotalLoadCount), 30, *this, &CNcch::onHttpsGetExtKey, reinterpret_cast<void*>(uUserData));
 			if (pUrl == nullptr)
 			{
 				urlManager.Cleanup();
