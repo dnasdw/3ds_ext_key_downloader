@@ -4,9 +4,6 @@
 [submodule "dep/libsundaowen_openwrt"]
 	path = dep/libsundaowen_openwrt
 	url = https://github.com/dnasdw/libsundaowen_src_openwrt.git
-[submodule "dep/openssl"]
-	path = dep/openssl
-	url = https://github.com/dnasdw/libsundaowen_openssl.git
 [submodule "dep/curl"]
 	path = dep/curl
 	url = https://github.com/dnasdw/libsundaowen_curl.git
